@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #193283c9; /* outer background */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-family: Arial, sans-serif;
+}
+
+.content {
+    background-color: #a8e5e4e4; /* center background */
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 100px;
+    padding-right: 100px;
+    max-width: 800px;
+    text-align: left;
+    border-radius: 10px;
+}
+
+.gradient-line {
+    border: none;
+    height: 3px;
+    /* Create a gradient from transparent -> color -> transparent */
+    background-image: linear-gradient(to right, transparent, #007bff, transparent);
+}
