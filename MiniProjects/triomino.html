@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<h1 style="font-size:48px; margin:10px 0 5px;">Tile that Courtyard, Please.</h1>
+<h1 style="font-size:24px; margin:0 0 10px;">
+  (Title Credit: MIT Open CourseWare 
+  <a href="https://www.youtube.com/watch?v=eSRNeIyX5dY" target="_blank">[link]</a>)
+</h1>
+<h1 style="font-size:24px; margin:0 0 10px;">
+  Originally proposed by Dr. Norton Starr [1936-2025] of Amherst College.
+</h1>
+<hr style="width:80%; margin-bottom:15px;">
+
+
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+h1 { margin: 10px 0 5px; font-size: 20px; }
+p { margin: 0 0 5px; font-size: 14px; }
+#buttons { display: flex; gap: 10px; margin-bottom: 5px; }
+button { padding: 5px 12px; font-size: 13px; }
+#palette { display: flex; justify-content: center; gap: 10px; margin-bottom: 5px; }
+.triomino { display: grid; grid-template-columns: repeat(2, 24px); grid-template-rows: repeat(2, 24px); gap: 2px; cursor: grab; }
+.block { width: 48px; height: 48px; }
+#grid-container { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 5px; }
+#grid { display: grid; gap: 2px; }
+.cell { border: 1px solid #ccc; background:white; display:flex; align-items:center; justify-content:center; }
+.blocked { background:#444; }
+.ghost-valid { background: rgba(0,200,0,0.4); }
+.ghost-invalid { background: rgba(200,0,0,0.4); }
+#trash { margin-bottom: 5px; width: 120px; height: 70px; border: 2px dashed #900; color: #900; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size:14px; }
+</style>
+</head>
+<body>
+<br>
+
+<p style="font-size:36px; margin:0 0 10px;">Drag "L-Shaped Triominos" to place, reposition, or remove them on/from the grid.</p>
+<p style="font-size:36px; margin:0 0 10px;">The goal is to fill the grid completely.</p>
+<p style="font-size:24px; margin:0 0 10px;">Black = already occupied block; Green = valid placement; Red = invalid placement.</p>
+<hr style="width:80%; margin-bottom:15px;">
+<br>
+
+<style>
+button { 
+    padding: 6px 14px; 
+    font-size: 24px; /* increased from 13px */
+    cursor: pointer;
+}
+</style>
+
+<div id="buttons" style="gap:20px;">
+  <button onclick="resizeBoard('half')">Half Board Size</button>
+   <button onclick="newGame()">New Game</button>
+  <button onclick="resizeBoard('double')">Double Board Size</button>
+</div>
+
+<br> <!-- Line break between buttons and board -->
+
+<div id="palette" style="gap:30px;">
+  <!-- Shape 0: Cyan L bottom-left -->
+  <div class="triomino" draggable="true" data-shape="0" data-color="#00BCD4" style="display:grid;grid-template-columns:repeat(2,48px);grid-template-rows:repeat(2,48px);gap:3px;">
+    <div class="block" style="background:#00BCD4"></div> <!-- top-left -->
+    <div class="block" style="background:#00BCD4"></div> <!-- top-right -->
+    <div class="block" style="background:#00BCD4"></div> <!-- bottom-left -->
+    <div class="block" style="background:transparent"></div> <!-- bottom-right -->
+  </div>
+
+  <!-- Shape 1: Blue L bottom-right -->
+  <div class="triomino" draggable="true" data-shape="1" data-color="#2196F3" style="display:grid;grid-template-columns:repeat(2,48px);grid-template-rows:repeat(2,48px);gap:3px;">
+    <div class="block" style="background:#2196F3"></div> <!-- top-left -->
+    <div class="block" style="background:transparent"></div> <!-- top-right -->
+    <div class="block" style="background:#2196F3"></div> <!-- bottom-left -->
+    <div class="block" style="background:#2196F3"></div> <!-- bottom-right -->
+  </div>
+
+  <!-- Shape 2: Orange L top-right -->
+  <div class="triomino" draggable="true" data-shape="2" data-color="#FF9800" style="display:grid;grid-template-columns:repeat(2,48px);grid-template-rows:repeat(2,48px);gap:3px;">
+    <div class="block" style="background:#FF9800"></div> <!-- top-left -->
+    <div class="block" style="background:#FF9800"></div> <!-- top-right -->
+    <div class="block" style="background:transparent"></div> <!-- bottom-left -->
+    <div class="block" style="background:#FF9800"></div> <!-- bottom-right -->
+  </div>
+
+  <!-- Shape 3: Purple L top-left -->
+  <div class="triomino" draggable="true" data-shape="3" data-color="#9C27B0" style="display:grid;grid-template-columns:repeat(2,48px);grid-template-rows:repeat(2,48px);gap:3px;">
+    <div class="block" style="background:transparent"></div> <!-- top-left -->
+    <div class="block" style="background:#9C27B0"></div> <!-- top-right -->
+    <div class="block" style="background:#9C27B0"></div> <!-- bottom-left -->
+    <div class="block" style="background:#9C27B0"></div> <!-- bottom-right -->
+  </div>
+</div>
+<br>
+
+<div id="grid-container">
+  <div id="grid"></div>
+</div>
+
+<br> <!-- Line break between board and trash can -->
+
+<style>
+  #trash { 
+    margin-bottom: 5px; 
+    width: 120px; 
+    height: 70px; 
+    border: 2px dashed #900; 
+    color: #900; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: bold; 
+    font-size: 24px; /* larger text */
+    cursor: pointer;
+}
+</style>
+
+<div id="trash">🗑 Trash</div>
+<br>
+<hr style="width:80%; margin-bottom:15px;">
+<p style="font-size:24px; margin:10px 0 5px;">Dr. Valerie Feng of Drew University, 2026</p>
+<p style="font-size:24px; margin:10px 0 5px;">with the assistance from ChatGPT, OpenAI</p>
+
+<script>
+let size = 8;
+let grid = [];
+let dragged = null;
+let draggedTileId = null;
+let originalPositions = null;
+let tileCounter = 0;
+
+const shapes = [
+  [[0,0],[0,1],[1,0]],
+  [[0,0],[1,0],[1,1]],
+  [[0,0],[0,1],[1,1]],
+  [[0,1],[1,0],[1,1]]
+];
+
+const gridDiv = document.getElementById("grid");
+const trash = document.getElementById("trash");
+
+// Palette drag
+document.querySelectorAll(".triomino").forEach(t=>{
+  t.addEventListener("dragstart",()=>{
+    dragged = { shape: shapes[Number(t.dataset.shape)], color: t.dataset.color };
+    draggedTileId = null;
+    originalPositions = null;
+  });
+});
+
+// Trash drop
+trash.ondragover = e => e.preventDefault();
+trash.ondrop = ()=>{
+  if(draggedTileId!==null){
+    grid.forEach((c,i)=>{if(c && c.tileId===draggedTileId) grid[i]=null;});
+    drawGrid();
+  }
+};
+
+// Helpers
+function indexToRC(i){return [Math.floor(i/size),i%size];}
+function rcToIndex(r,c){return r*size+c;}
+function getPlacement(index){
+  if(!dragged) return null;
+  const [r,c] = indexToRC(index);
+  return dragged.shape.map(([dr,dc])=>[r+dr,c+dc]);
+}
+function validPlacement(cells){
+  return cells.every(([r,c])=>{
+    if(r<0||r>=size||c<0||c>=size) return false;
+    const cell = grid[rcToIndex(r,c)];
+    return !cell || cell.tileId===draggedTileId;
+  });
+}
+function clearGhost(){document.querySelectorAll(".ghost-valid,.ghost-invalid").forEach(c=>c.classList.remove("ghost-valid","ghost-invalid"));}
+
+// Draw grid
+function drawGrid(){
+  gridDiv.innerHTML="";
+  let cellSize = Math.max(15, Math.min(50, 400/size));
+  gridDiv.style.gridTemplateColumns=`repeat(${size}, ${cellSize}px)`;
+  gridDiv.style.gridTemplateRows=`repeat(${size}, ${cellSize}px)`;
+
+  grid.forEach((cell,i)=>{
+    const div=document.createElement("div");
+    div.className="cell";
+    div.style.width=div.style.height=`${cellSize}px`;
+
+    if(cell==="blocked") div.classList.add("blocked");
+    else if(cell){
+      div.style.background=cell.color;
+      div.draggable=true;
+      div.addEventListener("dragstart",()=>{
+        dragged={shape:cell.shape,color:cell.color};
+        draggedTileId=cell.tileId;
+        originalPositions=[];
+        grid.forEach((c,j)=>{if(c&&c.tileId===draggedTileId) originalPositions.push(j);});
+        originalPositions.forEach(j=>grid[j]=null);
+      });
+    }
+
+    div.ondragover = e=>{
+      e.preventDefault();
+      clearGhost();
+      const cells = getPlacement(i);
+      if(!cells) return;
+      const ok = validPlacement(cells);
+      cells.forEach(([r,c])=>{
+        const idx=rcToIndex(r,c);
+        if(gridDiv.children[idx]) gridDiv.children[idx].classList.add(ok?"ghost-valid":"ghost-invalid");
+      });
+    };
+    div.ondragleave = clearGhost;
+    div.ondrop = ()=>{
+      clearGhost();
+      const cells = getPlacement(i);
+      if(!cells || !validPlacement(cells)){
+        if(originalPositions) originalPositions.forEach(j=>grid[j]={...grid[j]});
+        drawGrid();
+        return;
+      }
+      const tileId = draggedTileId!==null?draggedTileId:tileCounter++;
+      cells.forEach(([r,c])=>grid[rcToIndex(r,c)]={color:dragged.color,tileId,shape:dragged.shape});
+      drawGrid();
+    };
+
+    gridDiv.appendChild(div);
+  });
+}
+
+// New game
+function newGame(){
+  grid = Array(size*size).fill(null);
+  grid[Math.floor(Math.random()*grid.length)]="blocked";
+  tileCounter=0;
+  drawGrid();
+}
+
+// Resize board
+function resizeBoard(action){
+  if(action==='half') size = Math.max(4, Math.floor(size/2));
+  if(action==='double') size = Math.min(16, size*2);
+  newGame();
+}
+
+newGame();
+</script>
+</body>
+</html>
